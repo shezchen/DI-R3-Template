@@ -151,6 +151,7 @@ GameObject:
   - component: {fileID: 6033076044831866822}
   - component: {fileID: 6889091334364182413}
   - component: {fileID: 518006910608773930}
+  - component: {fileID: 2901823540674577186}
   m_Layer: 0
   m_Name: LanguagePage
   m_TagString: Untagged
@@ -214,10 +215,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 3840, y: 2160}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -255,6 +256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Architecture.LanguagePage
   languageText: {fileID: 5759771262743171623}
+  fadeDuration: 0.5
 --- !u!114 &518006910608773930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274,6 +276,18 @@ MonoBehaviour:
     Object: {fileID: 861904539075846825}
   - ID: Button_Japanese
     Object: {fileID: 7786704263032530330}
+--- !u!225 &2901823540674577186
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1102634226702528288}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8442684692644927009
 GameObject:
   m_ObjectHideFlags: 0

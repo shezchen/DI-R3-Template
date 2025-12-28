@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using Architecture.GameSound;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
+using Newtonsoft.Json;
 
 namespace Architecture
 {
@@ -51,19 +51,15 @@ namespace Architecture
 
         private void LoadSettings()
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(_settingsSavePath, FileMode.Open);
-            CurrentSettingsSave = (GameSettings)formatter.Deserialize(stream);
-            stream.Close();
+            string json = File.ReadAllText(_settingsSavePath);
+            CurrentSettingsSave = JsonConvert.DeserializeObject<GameSettings>(json);
             Debug.Log("设置数据已从: " + _settingsSavePath + " 加载");
         }
 
         public void SaveSettings()
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(_settingsSavePath, FileMode.Create);
-            formatter.Serialize(stream, CurrentSettingsSave);
-            stream.Close();
+            string json = JsonConvert.SerializeObject(CurrentSettingsSave, Formatting.Indented);
+            File.WriteAllText(_settingsSavePath, json);
             Debug.Log("设置数据已保存至: " + _settingsSavePath);
         }
         
@@ -80,20 +76,16 @@ namespace Architecture
                 return;
             }
 
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(savePath, FileMode.Open);
-            CurrentGameSave = (GameSave)formatter.Deserialize(stream);
-            stream.Close();
+            string json = File.ReadAllText(savePath);
+            CurrentGameSave = JsonConvert.DeserializeObject<GameSave>(json);
             Debug.Log("游戏存档已从: " + savePath + " 加载");
         }
         
         public void SaveGame(string savePath)
         {
             CurrentGameSave.LastSaveTime = DateTime.Now;
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(savePath, FileMode.Create);
-            formatter.Serialize(stream, CurrentGameSave);
-            stream.Close();
+            string json = JsonConvert.SerializeObject(CurrentGameSave, Formatting.Indented);
+            File.WriteAllText(savePath, json);
             Debug.Log("游戏存档已保存至: " + savePath);
         }
     }
