@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97269afb30aa84742ae3f3342603618a, type: 3}
-  m_Name: 16Party Asset Table_ja
+  m_Name: Asset Table_zh-Hans
   m_EditorClassIdentifier: 
   m_LocaleId:
-    m_Code: ja
+    m_Code: zh-Hans
   m_SharedData: {fileID: 11400000, guid: 8ab4cc54bcacbe2418eadc67c58b602b, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
   - m_Id: 13039341568
-    m_Localized: 3587fce93c2e5b64096e2713eacd65e7
+    m_Localized: 4b17115874aa48a4aacd326e87d08e83
     m_Metadata:
       m_Items: []
   references:

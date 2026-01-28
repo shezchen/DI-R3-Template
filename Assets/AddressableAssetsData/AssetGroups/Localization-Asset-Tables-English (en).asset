@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: 3648883ad04cedd42988614bff10b49c
   m_SerializeEntries:
   - m_GUID: 3d9a1a3b63882bf4493b7356b802371b
-    m_Address: 16Party Asset Table_en
+    m_Address: Asset Table_en
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-en

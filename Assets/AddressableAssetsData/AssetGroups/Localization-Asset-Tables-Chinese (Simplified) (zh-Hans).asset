@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: 7f9ba722f59be9948b04a1e49f5a2d56
   m_SerializeEntries:
   - m_GUID: ca5196599fdb94b41ba5a51740383952
-    m_Address: 16Party Asset Table_zh-Hans
+    m_Address: Asset Table_zh-Hans
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-zh-Hans

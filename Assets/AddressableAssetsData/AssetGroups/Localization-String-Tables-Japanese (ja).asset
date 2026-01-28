@@ -16,7 +16,7 @@ MonoBehaviour:
   m_GUID: aef1dfce6395b36438a205647ed14ab6
   m_SerializeEntries:
   - m_GUID: d3c57c41f5b83dc46b469cbba70e0bd4
-    m_Address: 16Party Project Table_ja
+    m_Address: Project Table_ja
     m_ReadOnly: 1
     m_SerializedLabels:
     - Locale-ja
