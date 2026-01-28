@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Architecture
 {
-    public class SaveManager
+    public class DataManager
     {
         [Inject] private IAudioService _audioService;
         

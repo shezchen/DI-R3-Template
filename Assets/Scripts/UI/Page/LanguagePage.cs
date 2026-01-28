@@ -1,6 +1,7 @@
-﻿using Architecture;
+using Architecture;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Generated;
 using R3;
 using TMPro;
 using Tools;
@@ -11,23 +12,29 @@ using VContainer;
 namespace UI
 {
     /// <summary>
+    /// 语言选择页面
     /// 切换语言会有延迟，所以这里要监听语言切换事件来手动更新UI
     /// </summary>
-    [RequireComponent(typeof(UIBinder),typeof(CanvasGroup))]
-    public class LanguagePage : BasePage
+    [RequireComponent(typeof(UIBinder), typeof(CanvasGroup), typeof(GraphicRaycaster))]
+    public class LanguagePage : MonoBehaviour, IBasePage
     {
         [SerializeField] private TextMeshProUGUI languageText;
         [SerializeField] private float fadeDuration = 0.5f;
 
         [Inject] private EventBus _eventBus;
         [Inject] private UIManager _uiManager;
+        
         private UIBinder _uiBinder;
         private CanvasGroup _canvasGroup;
-        
+        private GraphicRaycaster _raycaster;
+
         private void Awake()
         {
             _canvasGroup = GetComponent<CanvasGroup>();
+            _raycaster = GetComponent<GraphicRaycaster>();
             _canvasGroup.alpha = 0;
+            
+            // 订阅语言变更事件
             _eventBus.Receive<LanguageChangeEvent>().Subscribe((type) =>
             {
                 switch (type.NewLanguage)
@@ -44,38 +51,56 @@ namespace UI
                 }
             }).AddTo(this);
 
+            // 绑定按钮事件
             _uiBinder = GetComponent<UIBinder>();
-            _uiBinder.Get<Button>("Button_Chinese").OnClickAsObservable().Subscribe(async(_) =>
+            _uiBinder.Get<Button>("Button_Chinese").OnClickAsObservable().Subscribe((_) =>
             {
-                _eventBus.Publish(new LanguageConfirmEvent(GameLanguageType.Chinese));
-                await Hide();
-                _uiManager.ShowMainScenePage().Forget();
+                OnLanguageSelected(GameLanguageType.Chinese);
             }).AddTo(this);
-            _uiBinder.Get<Button>("Button_English").OnClickAsObservable().Subscribe(async(_) =>
+            _uiBinder.Get<Button>("Button_English").OnClickAsObservable().Subscribe((_) =>
             {
-                _eventBus.Publish(new LanguageConfirmEvent(GameLanguageType.English));
-                await Hide();
-                _uiManager.ShowMainScenePage().Forget();
+                OnLanguageSelected(GameLanguageType.English);
             }).AddTo(this);
-            _uiBinder.Get<Button>("Button_Japanese").OnClickAsObservable().Subscribe(async(_) =>
+            _uiBinder.Get<Button>("Button_Japanese").OnClickAsObservable().Subscribe((_) =>
             {
-                _eventBus.Publish(new LanguageConfirmEvent(GameLanguageType.Japanese));
-                await Hide();
-                _uiManager.ShowMainScenePage().Forget();
+                OnLanguageSelected(GameLanguageType.Japanese);
             }).AddTo(this);
         }
 
-        public override async UniTask Display()
+        private void OnLanguageSelected(GameLanguageType language)
         {
-            await _canvasGroup.FadeIn(fadeDuration).AsyncWaitForCompletion();
-            _eventBus.Publish(new PageShow(typeof(LanguagePage)));
+            _eventBus.Publish(new LanguageConfirmEvent(language));
+            _uiManager.PopPage().ContinueWith(() =>
+            {
+                _uiManager.PushPage<MainScenePage>(AddressableKeys.Assets.MainScenePrefab).Forget();
+            }).Forget();
         }
 
-        public override async UniTask Hide()
+        #region IBasePage 实现
+
+        public async UniTask OnEnter()
+        {
+            if (_raycaster != null) _raycaster.enabled = true;
+            await _canvasGroup.FadeIn(fadeDuration).AsyncWaitForCompletion();
+        }
+
+        public async UniTask OnPause()
+        {
+            if (_raycaster != null) _raycaster.enabled = false;
+            await UniTask.CompletedTask;
+        }
+
+        public async UniTask OnResume()
+        {
+            if (_raycaster != null) _raycaster.enabled = true;
+            await UniTask.CompletedTask;
+        }
+
+        public async UniTask OnExit()
         {
             await _canvasGroup.FadeOut(fadeDuration).AsyncWaitForCompletion();
-            _eventBus.Publish(new PageHide(typeof(LanguagePage)));
-            Destroy(gameObject);
         }
+
+        #endregion
     }
 }

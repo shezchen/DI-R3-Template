@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Architecture;
 using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
@@ -9,29 +8,30 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using VContainer;
-using VContainer.Unity;
-using Object = UnityEngine.Object;
 
 namespace UI
 {
     /// <summary>
-    /// 先初始化，之后根据流程控制器来加载UI
+    /// UI 管理器
+    /// 负责 UI 资源的预加载和页面栈的管理
     /// </summary>
     public class UIManager : IDisposable
     {
-        private UIRoot _uiRoot;
-        private EventBus _eventBus;
+        private readonly UIRoot _uiRoot;
+        private readonly EventBus _eventBus;
         private readonly IObjectResolver _resolver;
+        private readonly UIPageStack _pageStack;
 
         [Title("Resource Management")]
         [ShowInInspector, ReadOnly]
         private Dictionary<string, AsyncOperationHandle<GameObject>> _uiHandles = new();
-        
+
         public UIManager(UIRoot root, EventBus eventBus, IObjectResolver resolver)
         {
             _uiRoot = root;
             _eventBus = eventBus;
             _resolver = resolver;
+            _pageStack = new UIPageStack(resolver, root.transform);
         }
 
         public async UniTask Init()
@@ -39,6 +39,53 @@ namespace UI
             // 初始化为空，后续根据流程控制器调用 RefreshPreloadedUI
             await UniTask.CompletedTask;
         }
+
+        #region 页面栈操作
+
+        /// <summary>
+        /// Push 新页面到栈顶
+        /// </summary>
+        /// <typeparam name="T">页面类型，必须实现 IBasePage 接口</typeparam>
+        /// <param name="addressableKey">Addressable 资源 Key</param>
+        /// <returns>新创建的页面实例</returns>
+        public async UniTask<T> PushPage<T>(string addressableKey) where T : MonoBehaviour, IBasePage
+        {
+            var prefab = await GetPreloadedPrefab(addressableKey);
+            return await _pageStack.PushPage<T>(prefab, addressableKey);
+        }
+
+        /// <summary>
+        /// Pop 栈顶页面
+        /// </summary>
+        public async UniTask PopPage()
+        {
+            await _pageStack.PopPage();
+        }
+
+        /// <summary>
+        /// 清空栈中所有页面
+        /// </summary>
+        public async UniTask ClearAllPages()
+        {
+            await _pageStack.ClearStack();
+        }
+
+        /// <summary>
+        /// 获取栈顶页面
+        /// </summary>
+        public IBasePage GetTopPage()
+        {
+            return _pageStack.GetTopPage();
+        }
+
+        /// <summary>
+        /// 获取当前页面栈深度
+        /// </summary>
+        public int PageCount => _pageStack.Count;
+
+        #endregion
+
+        #region 资源管理
 
         /// <summary>
         /// 动态刷新预加载状态：加载列表中的资源，释放不在列表中的资源
@@ -84,49 +131,18 @@ namespace UI
             {
                 return await handle;
             }
-            
+
             var newHandle = Addressables.LoadAssetAsync<GameObject>(key);
             _uiHandles.Add(key, newHandle);
             return await newHandle;
         }
-        
-        public async UniTask ShowLanguagePage()
-        {
-            var go = await GetPreloadedPrefab(AddressableKeys.Assets.LanguagePagePrefab);
-            var instance = _resolver.Instantiate(go, _uiRoot.transform);
-            var page = instance.GetComponent<LanguagePage>();
-            await page.Display();
-        }
 
-        public async UniTask ShowMainScenePage()
-        {
-            var go = await GetPreloadedPrefab(AddressableKeys.Assets.MainScenePrefab);
-            var instance = _resolver.Instantiate(go, _uiRoot.transform);
-            var page = instance.GetComponent<MainScenePage>();
-            await page.Display();
-        }
-
-        public async UniTask ShowSettingsPage()
-        {
-            var go = await GetPreloadedPrefab(AddressableKeys.Assets.SettingsPagePrefab);
-            var instance = _resolver.Instantiate(go, _uiRoot.transform);
-            var page = instance.GetComponent<SettingsPage>();
-            await page.Display();
-        }
-        
-        /// <summary>
-        /// 销毁UI Root下的所有子物体
-        /// </summary>
-        public void ClearUIRoot()
-        {
-            for (int i = _uiRoot.transform.childCount - 1; i >= 0; i--)
-            {
-                Object.Destroy(_uiRoot.transform.GetChild(i).gameObject);
-            }
-        }
+        #endregion
 
         public void Dispose()
         {
+            // 清空页面栈（同步方式，因为 Dispose 不支持 async）
+            // 注意：这里不调用生命周期方法，直接释放资源
             foreach (var handle in _uiHandles.Values)
             {
                 if (handle.IsValid())

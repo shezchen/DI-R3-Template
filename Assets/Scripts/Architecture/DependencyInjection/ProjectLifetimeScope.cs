@@ -40,7 +40,7 @@ namespace Architecture
 
             #region 存档系统
 
-            builder.Register<SaveManager>(Lifetime.Singleton);
+            builder.Register<DataManager>(Lifetime.Singleton);
 
             #endregion
 
